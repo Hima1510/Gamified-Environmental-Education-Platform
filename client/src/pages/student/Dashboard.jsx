@@ -43,7 +43,7 @@ function StreakWeek({ week, done }) {
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+  const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7'];
   const streakWeeks = weeks.map((_, index) => index < Math.min(user?.streak || 1, weeks.length));
   const activeMissions = mockMissions.filter(m => m.status === 'in_progress').slice(0, 3);
   const recentTopics = mockTopics.slice(0, 4);
