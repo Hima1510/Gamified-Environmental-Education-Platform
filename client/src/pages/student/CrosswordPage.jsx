@@ -1,28 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Puzzle, Clock, Award, Star, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { mockCrosswordPuzzles } from '../../data/mockData';
 
-const GRID_SIZE = 13;
-const crosswordData = {
-  words: [
-    { word: 'RECYCLING', clue: '1A. The process of converting waste materials into new products', dir: 'across', row: 0, col: 0, num: 1 },
-    { word: 'BIODIVERSITY', clue: '4A. The variety of living organisms in an ecosystem', dir: 'across', row: 4, col: 0, num: 4 },
-    { word: 'ECOSYSTEM', clue: '8A. A community of living organisms interacting with their environment', dir: 'across', row: 8, col: 0, num: 8 },
-    { word: 'COMPOST', clue: '10A. Decomposed organic matter used to fertilize soil', dir: 'across', row: 10, col: 3, num: 10 },
-    { word: 'SOLAR', clue: '2D. Energy from the sun used to generate electricity', dir: 'down', row: 0, col: 2, num: 2 },
-    { word: 'CLIMATE', clue: '3D. Long-term weather patterns in a region', dir: 'down', row: 0, col: 6, num: 3 },
-    { word: 'FOREST', clue: '5D. A large area covered chiefly with trees', dir: 'down', row: 4, col: 9, num: 5 },
-  ],
-};
-
-function buildGrid() {
-  const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-  const nums = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
+function buildGrid(crosswordData) {
+  const grid = Array(crosswordData.size).fill(null).map(() => Array(crosswordData.size).fill(null));
+  const nums = Array(crosswordData.size).fill(null).map(() => Array(crosswordData.size).fill(null));
   crosswordData.words.forEach(w => {
     for (let i = 0; i < w.word.length; i++) {
-      const r = w.dir === 'across' ? w.row : w.row + i;
-      const c = w.dir === 'across' ? w.col + i : w.col;
-      if (r < GRID_SIZE && c < GRID_SIZE) {
+      const r = w.direction === 'across' ? w.row : w.row + i;
+      const c = w.direction === 'across' ? w.col + i : w.col;
+      if (r < crosswordData.size && c < crosswordData.size) {
         grid[r][c] = { letter: w.word[i], filled: false };
         if (i === 0) nums[r][c] = w.num;
       }
@@ -32,15 +20,44 @@ function buildGrid() {
 }
 
 export default function CrosswordPage() {
-  const [{ grid, nums }] = useState(buildGrid);
+  const topics = [...new Set(mockCrosswordPuzzles.map(puzzle => puzzle.topic))];
+  const levels = ['Beginner', 'Intermediate', 'Advanced'];
+  const [selectedTopic, setSelectedTopic] = useState(topics[0]);
+  const [selectedLevel, setSelectedLevel] = useState(levels[0]);
+  const crosswordData = mockCrosswordPuzzles.find(puzzle =>
+    puzzle.topic === selectedTopic && puzzle.level === selectedLevel
+  ) || mockCrosswordPuzzles[0];
+  const [{ grid, nums }, setBoard] = useState(() => buildGrid(crosswordData));
   const [userGrid, setUserGrid] = useState(() =>
     grid.map(row => row.map(cell => (cell ? '' : null)))
   );
-  const [selectedCell, setSelectedCell] = useState(null);
   const [timer, setTimer] = useState(0);
   const [started, setStarted] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const GRID_SIZE = crosswordData.size;
+
+  const changePuzzle = (topic, level) => {
+    const nextPuzzle = mockCrosswordPuzzles.find(puzzle => puzzle.topic === topic && puzzle.level === level);
+    if (!nextPuzzle) return;
+    const nextBoard = buildGrid(nextPuzzle);
+    setBoard(nextBoard);
+    setUserGrid(nextBoard.grid.map(row => row.map(cell => (cell ? '' : null))));
+    setTimer(0);
+    setStarted(false);
+    setCompleted(false);
+    setScore(0);
+  };
+
+  const handleTopicChange = (topic) => {
+    setSelectedTopic(topic);
+    changePuzzle(topic, selectedLevel);
+  };
+
+  const handleLevelChange = (level) => {
+    setSelectedLevel(level);
+    changePuzzle(selectedTopic, level);
+  };
 
   useEffect(() => {
     if (!started || completed) return;
@@ -92,8 +109,8 @@ export default function CrosswordPage() {
   const totalCount = grid.flat().filter(c => c !== null).length;
   const progress = Math.round((filledCount / totalCount) * 100);
 
-  const acrossClues = crosswordData.words.filter(w => w.dir === 'across');
-  const downClues = crosswordData.words.filter(w => w.dir === 'down');
+  const acrossClues = crosswordData.words.filter(w => w.direction === 'across');
+  const downClues = crosswordData.words.filter(w => w.direction === 'down');
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 max-w-5xl mx-auto">
@@ -110,6 +127,23 @@ export default function CrosswordPage() {
             <Star className="w-4 h-4 text-eco-amber" /> {progress}%
           </div>
         </div>
+      </div>
+
+      <div className="glass rounded-xl p-4 grid sm:grid-cols-2 gap-3">
+        <label className="text-sm font-medium">
+          Topic
+          <select value={selectedTopic} onChange={e => handleTopicChange(e.target.value)}
+            className="mt-1 w-full rounded-lg bg-secondary border border-border px-3 py-2 text-sm outline-none focus:border-primary">
+            {topics.map(topic => <option key={topic} value={topic}>{topic}</option>)}
+          </select>
+        </label>
+        <label className="text-sm font-medium">
+          Level
+          <select value={selectedLevel} onChange={e => handleLevelChange(e.target.value)}
+            className="mt-1 w-full rounded-lg bg-secondary border border-border px-3 py-2 text-sm outline-none focus:border-primary">
+            {levels.map(level => <option key={level} value={level}>{level}</option>)}
+          </select>
+        </label>
       </div>
 
       {completed && (
@@ -138,7 +172,7 @@ export default function CrosswordPage() {
             <div className="inline-grid gap-0.5" style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(32px, 40px))` }}>
               {grid.map((row, r) =>
                 row.map((cell, c) => (
-                  <div key={`${r}-${c}`} className={`relative aspect-square ${cell ? 'bg-secondary/80 border border-border' : ''} rounded`}>
+                  <div key={`${r}-${c}`} className={`relative aspect-square rounded-none border ${cell ? 'bg-white border-slate-500' : '!bg-green-200 border-slate-600'}`}>
                     {nums[r][c] && (
                       <span className="absolute top-0 left-0.5 text-[8px] text-muted-foreground font-medium">{nums[r][c]}</span>
                     )}
@@ -148,7 +182,6 @@ export default function CrosswordPage() {
                         maxLength={1}
                         value={userGrid[r][c] || ''}
                         onChange={e => handleCellInput(r, c, e.target.value)}
-                        onClick={() => setSelectedCell({ r, c })}
                         className={`w-full h-full text-center uppercase font-bold text-sm bg-transparent outline-none ${
                           completed && userGrid[r][c] === cell.letter ? 'text-eco-green' :
                           completed && userGrid[r][c] && userGrid[r][c] !== cell.letter ? 'text-destructive' : 'text-foreground'

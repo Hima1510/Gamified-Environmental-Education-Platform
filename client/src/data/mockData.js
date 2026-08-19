@@ -70,7 +70,7 @@ export const mockBadges = [
   { id: 'b3', name: 'Water Guardian', icon: '💧', description: 'Save 100L of water through missions', unlocked: true, unlockedDate: '2026-07-30', color: '#3b82f6' },
   { id: 'b4', name: 'Green Champion', icon: '🌳', description: 'Plant 5 trees and verify growth', unlocked: true, unlockedDate: '2026-08-05', color: '#16a34a' },
   { id: 'b5', name: 'Climate Hero', icon: '🌍', description: 'Complete all Climate Change lessons', unlocked: true, unlockedDate: '2026-08-10', color: '#0ea5e9' },
-  { id: 'b6', name: '7-Day Streak', icon: '🔥', description: 'Maintain a 7-day learning streak', unlocked: true, unlockedDate: '2026-08-12', color: '#f97316' },
+  { id: 'b6', name: '7-Week Streak', icon: '🔥', description: 'Maintain a 7-week learning streak', unlocked: true, unlockedDate: '2026-08-12', color: '#f97316' },
   { id: 'b7', name: 'Eco Master', icon: '🏆', description: 'Reach Level 15 and earn 3000+ Eco Points', unlocked: false, color: '#eab308' },
   { id: 'b8', name: 'Quiz Champion', icon: '🧠', description: 'Score 90%+ in 10 quizzes', unlocked: true, unlockedDate: '2026-08-01', color: '#a855f7' },
   { id: 'b9', name: 'Mission Master', icon: '🎯', description: 'Complete 25 environmental missions', unlocked: true, unlockedDate: '2026-08-14', color: '#f43f5e' },
@@ -214,19 +214,34 @@ export const mockQuizzes = [
 ];
 
 // ---------- CROSSWORD DATA ----------
-export const mockCrossword = {
-  size: 10,
-  words: [
-    { word: 'RECYCLING', clue: 'The process of converting waste materials into new products', direction: 'across', row: 0, col: 0 },
-    { word: 'BIODIVERSITY', clue: 'The variety of living organisms in an ecosystem', direction: 'across', row: 4, col: 0 },
-    { word: 'ECOSYSTEM', clue: 'A community of living organisms interacting with their environment', direction: 'across', row: 8, col: 0 },
-    { word: 'SOLAR', clue: 'Energy from the sun used to generate electricity', direction: 'down', row: 0, col: 0 },
-    { word: 'COMPOST', clue: 'Decomposed organic matter used to fertilize soil', direction: 'down', row: 0, col: 4 },
-    { word: 'CLIMATE', clue: 'Long-term weather patterns in a region', direction: 'down', row: 2, col: 8 },
-    { word: 'FOREST', clue: 'A large area covered chiefly with trees and undergrowth', direction: 'down', row: 4, col: 2 },
-  ],
-  bonusPoints: 50,
+const crosswordWords = {
+  'Waste Management': {
+    Beginner: [['BIN', 'A container used for collecting waste', 'across', 0, 0], ['REUSE', 'Use an item again instead of throwing it away', 'across', 4, 0], ['PAPER', 'Material commonly made from trees', 'across', 8, 0], ['RECYCLE', 'Process materials so they can become new products', 'down', 0, 10], ['CLEAN', 'Free from dirt or unwanted waste', 'down', 2, 5]],
+    Intermediate: [['COMPOST', 'Decomposed organic matter used to fertilize soil', 'across', 0, 0], ['LANDFILL', 'Place where waste is buried', 'across', 4, 0], ['PLASTIC', 'Durable material found in many disposable products', 'across', 8, 0], ['SEGREGATE', 'Separate waste into different categories', 'down', 0, 11], ['REUSE', 'Use something again rather than discard it', 'down', 2, 5], ['RECYCLE', 'Process used materials into new products', 'down', 1, 1], ['HAZARDOUS', 'Potentially dangerous to people or the environment', 'down', 3, 8]],
+    Advanced: [['CIRCULAR', 'Describes an economy that keeps materials in use', 'across', 0, 0], ['BIODEGRADE', 'Break down naturally through living organisms', 'across', 4, 0], ['MICROPLASTIC', 'Tiny plastic particle found in the environment', 'across', 8, 0], ['UPCYCLING', 'Turning waste into a product of higher value', 'down', 0, 12], ['RECOVERY', 'Extraction of useful materials or energy from waste', 'down', 2, 6], ['ZEROWASTE', 'Design approach that aims to eliminate disposal', 'down', 0, 2], ['EXTENDED', 'Describes producer responsibility beyond a sale', 'down', 2, 9], ['TOXICITY', 'Degree to which a substance can cause harm', 'down', 5, 4], ['RESOURCE', 'Useful material that can be conserved or reused', 'down', 1, 7]],
+  },
+  Climate: {
+    Beginner: [['SUN', 'The star that provides Earth with light and heat', 'across', 0, 0], ['RAIN', 'Water falling from clouds', 'across', 4, 0], ['WIND', 'Moving air', 'across', 8, 0], ['EARTH', 'The planet on which we live', 'down', 0, 9], ['HOT', 'Having a high temperature', 'down', 2, 5]],
+    Intermediate: [['CLIMATE', 'Long-term weather patterns in a region', 'across', 0, 0], ['CARBON', 'Element released when fossil fuels burn', 'across', 4, 0], ['DROUGHT', 'A long period with very little rainfall', 'across', 8, 0], ['EMISSION', 'Release of gases or particles into the air', 'down', 0, 11], ['WARMING', 'Increase in average global temperature', 'down', 2, 6], ['OCEAN', 'Large body of salt water affected by warming', 'down', 1, 1], ['FLOOD', 'Overflow of water onto normally dry land', 'down', 3, 8]],
+    Advanced: [['GREENHOUSE', 'Atmospheric effect that traps heat near Earth', 'across', 0, 0], ['MITIGATION', 'Action that reduces the causes of climate change', 'across', 4, 0], ['ADAPTATION', 'Adjustment to actual or expected climate effects', 'across', 8, 0], ['SEQUESTRATION', 'Long-term capture and storage of carbon', 'down', 0, 12], ['ALBEDO', 'The amount of sunlight reflected by a surface', 'down', 2, 6], ['FEEDBACK', 'Process that amplifies or reduces climate change', 'down', 0, 2], ['RESILIENCE', 'Capacity to recover from climate impacts', 'down', 2, 9], ['AEROSOL', 'Tiny particle suspended in the atmosphere', 'down', 5, 4], ['PRECIPITATION', 'Water released from clouds as rain or snow', 'down', 1, 7]],
+  },
+  Biodiversity: {
+    Beginner: [['TREE', 'A tall plant with a trunk and branches', 'across', 0, 0], ['BIRD', 'An animal with feathers and wings', 'across', 4, 0], ['FISH', 'An animal that lives in water', 'across', 8, 0], ['LIFE', 'A quality shared by plants and animals', 'down', 0, 8], ['WILD', 'Living in nature rather than being domesticated', 'down', 2, 4]],
+    Intermediate: [['HABITAT', 'The natural home of an organism', 'across', 0, 0], ['SPECIES', 'A group of similar organisms that can reproduce', 'across', 4, 0], ['POLLINATOR', 'Animal that carries pollen between flowers', 'across', 8, 0], ['NATIVE', 'Naturally occurring in a particular place', 'down', 0, 11], ['CORAL', 'Marine animal that builds a reef structure', 'down', 2, 5], ['ADAPT', 'Change to survive in a different environment', 'down', 1, 1], ['PREDATOR', 'Animal that hunts another animal for food', 'down', 3, 8]],
+    Advanced: [['ECOSYSTEM', 'Community of organisms interacting with their environment', 'across', 0, 0], ['BIODIVERSITY', 'Variety of living organisms in an ecosystem', 'across', 4, 0], ['CONSERVATION', 'Protection and careful management of nature', 'across', 8, 0], ['ENDEMIC', 'Found naturally only in a particular geographic area', 'down', 0, 12], ['CORRIDOR', 'Connected habitat that helps wildlife move safely', 'down', 2, 6], ['GENETIC', 'Relating to inherited variation within a species', 'down', 0, 2], ['INVASIVE', 'Non-native species that causes ecological harm', 'down', 2, 9], ['MIGRATION', 'Seasonal movement of animals between regions', 'down', 5, 4], ['KEYSTONE', 'Species with an especially large ecosystem impact', 'down', 1, 7]],
+  },
 };
+
+export const mockCrosswordPuzzles = Object.entries(crosswordWords).flatMap(([topic, levels]) =>
+  Object.entries(levels).map(([level, words]) => ({
+    id: `${topic}-${level.toLowerCase()}`,
+    topic,
+    level,
+    size: 13,
+    words: words.map(([word, clue, direction, row, col], index) => ({ word, clue: `${index + 1}${direction === 'across' ? 'A' : 'D'}. ${clue}`, direction, row, col, num: index + 1 })),
+    bonusPoints: level === 'Advanced' ? 100 : level === 'Intermediate' ? 75 : 50,
+  }))
+);
 
 // ---------- COMPETITIONS ----------
 export const mockCompetitions = [
@@ -355,7 +370,7 @@ export const mockGreenScore = {
 export const mockNotifications = [
   { id: 'n1', type: 'points', icon: '🎉', message: 'You earned 100 Eco Points!', time: '2 mins ago', read: false },
   { id: 'n2', type: 'rank', icon: '🏆', message: 'You moved to #7 in your class!', time: '5 mins ago', read: false },
-  { id: 'n3', type: 'streak', icon: '🔥', message: 'Your 5-day streak is active! Keep going!', time: '1 hour ago', read: true },
+  { id: 'n3', type: 'streak', icon: '🔥', message: 'Your 5-week streak is active! Keep going!', time: '1 hour ago', read: true },
   { id: 'n4', type: 'badge', icon: '🎖️', message: 'New badge unlocked: Energy Saver!', time: '3 hours ago', read: true },
   { id: 'n5', type: 'mission', icon: '📋', message: 'New mission available: Clean Campus', time: '1 day ago', read: true },
 ];

@@ -94,7 +94,7 @@ export default function TeacherDashboard() {
                   <td className="py-2.5 px-3 font-medium">{s.name}</td>
                   <td className="py-2.5 px-3 text-right">{s.quizScore}%</td>
                   <td className="py-2.5 px-3 text-right">{s.missions}</td>
-                  <td className="py-2.5 px-3 text-right">{s.streak} days</td>
+                  <td className="py-2.5 px-3 text-right">{s.streak} weeks</td>
                   <td className="py-2.5 px-3 text-right font-medium">{formatNumber(s.ecoPoints)}</td>
                   <td className="py-2.5 px-3 text-right">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${

@@ -51,7 +51,7 @@ export default function ProfilePage() {
         {[
           { icon: Trophy, label: 'Class Rank', value: `#${user?.classRank || 7}`, color: 'text-eco-blue' },
           { icon: School, label: 'School Rank', value: `#${user?.schoolRank || 24}`, color: 'text-eco-purple' },
-          { icon: Flame, label: 'Streak', value: `${user?.streak || 5} days`, color: 'text-eco-orange' },
+          { icon: Flame, label: 'Streak', value: `${user?.streak || 1} weeks`, color: 'text-eco-orange' },
           { icon: Award, label: 'Badges', value: user?.badges || 12, color: 'text-eco-gold' },
           { icon: Target, label: 'Missions', value: user?.completedMissions || 28, color: 'text-eco-green' },
           { icon: BarChart3, label: 'Quiz Accuracy', value: `${user?.quizAccuracy || 84}%`, color: 'text-eco-teal' },

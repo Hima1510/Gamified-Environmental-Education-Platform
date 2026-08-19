@@ -101,7 +101,7 @@ export default function PerformancePage() {
                   <td className="py-3 px-4 font-medium">{s.name}</td>
                   <td className={`py-3 px-4 text-right font-medium ${getPerformanceColor(s.quizScore)}`}>{s.quizScore}%</td>
                   <td className="py-3 px-4 text-right">{s.missions}</td>
-                  <td className="py-3 px-4 text-right">{s.streak} days</td>
+                  <td className="py-3 px-4 text-right">{s.streak} weeks</td>
                   <td className="py-3 px-4 text-right font-medium">{formatNumber(s.ecoPoints)}</td>
                   <td className="py-3 px-4 text-right">
                     <span className={`text-xs px-2 py-1 rounded-full ${
