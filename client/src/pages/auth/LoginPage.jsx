@@ -44,12 +44,45 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-eco-teal/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-eco-blue/3 rounded-full blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Playful Animated Background Cartoons */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 select-none">
+        {/* Clouds */}
+        <div className="absolute top-[8%] left-[8%] text-6xl opacity-15 animate-float-slow">☁️</div>
+        <div className="absolute top-[35%] right-[12%] text-5xl opacity-12 animate-float-medium">☁️</div>
+        <div className="absolute top-[65%] left-[15%] text-5xl opacity-10 animate-float-slow">☁️</div>
+        <div className="absolute bottom-[10%] right-[25%] text-6xl opacity-12 animate-float-medium">☁️</div>
+        <div className="absolute top-[20%] right-[40%] text-4xl opacity-10 animate-float-slow">☁️</div>
+        
+        {/* Leaves */}
+        <div className="absolute top-[18%] left-[4%] text-3xl opacity-20 animate-drift-leaves">🍃</div>
+        <div className="absolute bottom-[25%] left-[6%] text-4xl opacity-20 animate-drift-leaves">🍃</div>
+        <div className="absolute bottom-[40%] right-[6%] text-4xl opacity-18 animate-drift-leaves-reverse">🍂</div>
+        <div className="absolute top-[50%] right-[18%] text-3xl opacity-15 animate-drift-leaves-reverse">🍂</div>
+        <div className="absolute top-[75%] left-[28%] text-3xl opacity-15 animate-drift-leaves">🍁</div>
+        <div className="absolute top-[5%] right-[22%] text-4xl opacity-12 animate-drift-leaves-reverse">🍁</div>
+        
+        {/* Butterflies */}
+        <div className="absolute top-[45%] left-[9%] text-4xl opacity-25 animate-fly-butterfly">🦋</div>
+        <div className="absolute top-[28%] right-[8%] text-3xl opacity-20 animate-fly-butterfly-reverse">🦋</div>
+        <div className="absolute bottom-[18%] right-[14%] text-4xl opacity-22 animate-fly-butterfly">🦋</div>
+        <div className="absolute bottom-[60%] left-[22%] text-[28px] opacity-18 animate-fly-butterfly-reverse">🦋</div>
+
+        {/* Playful Suns & Balloons */}
+        <div className="absolute top-[4%] right-[4%] text-6xl opacity-15 animate-float-slow">☀️</div>
+        <div className="absolute bottom-[30%] left-[40%] text-4xl opacity-12 animate-float-medium">🎈</div>
+        <div className="absolute top-[55%] right-[3%] text-4xl opacity-15 animate-float-slow">🎈</div>
+
+        {/* Flowers & Plants */}
+        <div className="absolute top-[12%] left-[25%] text-3xl opacity-15 animate-float-slow">🌸</div>
+        <div className="absolute bottom-[15%] left-[18%] text-3xl opacity-20 animate-drift-leaves">🌼</div>
+        <div className="absolute top-[80%] right-[35%] text-4xl opacity-15 animate-drift-leaves-reverse">🌻</div>
+        <div className="absolute top-[40%] left-[45%] text-[32px] opacity-12 animate-float-medium">🌸</div>
+        
+        {/* Stars / Sparkles */}
+        <div className="absolute top-[25%] left-[18%] text-2xl opacity-15 animate-float-slow">✨</div>
+        <div className="absolute top-[70%] right-[8%] text-3xl opacity-18 animate-float-medium">⭐</div>
+        <div className="absolute bottom-[8%] left-[50%] text-2xl opacity-15 animate-float-slow">✨</div>
       </div>
 
       <motion.div

@@ -32,13 +32,53 @@ export default function StudentLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen flex">
+      {/* Playful Animated Background Cartoons */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 select-none">
+        {/* Clouds */}
+        <div className="absolute top-[8%] left-[8%] text-6xl opacity-15 animate-float-slow">☁️</div>
+        <div className="absolute top-[35%] right-[12%] text-5xl opacity-12 animate-float-medium">☁️</div>
+        <div className="absolute top-[65%] left-[15%] text-5xl opacity-10 animate-float-slow">☁️</div>
+        <div className="absolute bottom-[10%] right-[25%] text-6xl opacity-12 animate-float-medium">☁️</div>
+        <div className="absolute top-[20%] right-[40%] text-4xl opacity-10 animate-float-slow">☁️</div>
+        
+        {/* Leaves */}
+        <div className="absolute top-[18%] left-[4%] text-3xl opacity-20 animate-drift-leaves">🍃</div>
+        <div className="absolute bottom-[25%] left-[6%] text-4xl opacity-20 animate-drift-leaves">🍃</div>
+        <div className="absolute bottom-[40%] right-[6%] text-4xl opacity-18 animate-drift-leaves-reverse">🍂</div>
+        <div className="absolute top-[50%] right-[18%] text-3xl opacity-15 animate-drift-leaves-reverse">🍂</div>
+        <div className="absolute top-[75%] left-[28%] text-3xl opacity-15 animate-drift-leaves">🍁</div>
+        <div className="absolute top-[5%] right-[22%] text-4xl opacity-12 animate-drift-leaves-reverse">🍁</div>
+        
+        {/* Butterflies */}
+        <div className="absolute top-[45%] left-[9%] text-4xl opacity-25 animate-fly-butterfly">🦋</div>
+        <div className="absolute top-[28%] right-[8%] text-3xl opacity-20 animate-fly-butterfly-reverse">🦋</div>
+        <div className="absolute bottom-[18%] right-[14%] text-4xl opacity-22 animate-fly-butterfly">🦋</div>
+        <div className="absolute bottom-[60%] left-[22%] text-[28px] opacity-18 animate-fly-butterfly-reverse">🦋</div>
+
+        {/* Playful Suns & Balloons */}
+        <div className="absolute top-[4%] right-[4%] text-6xl opacity-15 animate-float-slow">☀️</div>
+        <div className="absolute bottom-[30%] left-[40%] text-4xl opacity-12 animate-float-medium">🎈</div>
+        <div className="absolute top-[55%] right-[3%] text-4xl opacity-15 animate-float-slow">🎈</div>
+
+        {/* Flowers & Plants */}
+        <div className="absolute top-[12%] left-[25%] text-3xl opacity-15 animate-float-slow">🌸</div>
+        <div className="absolute bottom-[15%] left-[18%] text-3xl opacity-20 animate-drift-leaves">🌼</div>
+        <div className="absolute top-[80%] right-[35%] text-4xl opacity-15 animate-drift-leaves-reverse">🌻</div>
+        <div className="absolute top-[40%] left-[45%] text-[32px] opacity-12 animate-float-medium">🌸</div>
+        
+        {/* Stars / Sparkles */}
+        <div className="absolute top-[25%] left-[18%] text-2xl opacity-15 animate-float-slow">✨</div>
+        <div className="absolute top-[70%] right-[8%] text-3xl opacity-18 animate-float-medium">⭐</div>
+        <div className="absolute bottom-[8%] left-[50%] text-2xl opacity-15 animate-float-slow">✨</div>
+      </div>
+
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-card/50 backdrop-blur-xl fixed h-full z-30">
         <div className="p-5 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg border border-emerald-400">
+              <span className="text-xl icon-3d icon-bounce">🌱</span>
             </div>
             <div>
               <h1 className="font-bold text-lg text-gradient">EcoLearn</h1>
@@ -88,7 +128,7 @@ export default function StudentLayout() {
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-2">
-          <Leaf className="w-5 h-5 text-primary" />
+          <span className="text-xl icon-3d icon-bounce">🌱</span>
           <span className="font-bold text-gradient">EcoLearn</span>
         </div>
         <button onClick={() => setNotifOpen(!notifOpen)} className="p-2 hover:bg-secondary rounded-lg relative">
@@ -117,7 +157,7 @@ export default function StudentLayout() {
             >
               <div className="p-4 border-b border-border flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <Leaf className="w-5 h-5 text-primary" />
+                  <span className="text-xl icon-3d icon-bounce">🌱</span>
                   <span className="font-bold text-gradient">EcoLearn</span>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="p-1 hover:bg-secondary rounded-lg">

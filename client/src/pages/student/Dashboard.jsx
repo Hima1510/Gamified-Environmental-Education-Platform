@@ -11,17 +11,17 @@ import {
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
-function MetricCard({ icon: Icon, label, value, sub, color, gradient }) {
+function MetricCard({ emoji, label, value, sub, color, gradient }) {
   return (
     <motion.div variants={item} className="glass rounded-xl p-4 relative overflow-hidden group hover:scale-[1.02] transition-transform">
-      <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl opacity-20 ${gradient}`} />
+      <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl opacity-15 ${gradient}`} />
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-xl ${gradient} flex items-center justify-center`}>
-          <Icon className="w-5 h-5 text-white" />
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-3xl icon-3d icon-bounce bg-slate-50 border border-slate-200 shadow-sm">
+          {emoji}
         </div>
         <TrendingUp className={`w-4 h-4 ${color}`} />
       </div>
-      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-2xl font-bold font-heading">{value}</p>
       <p className="text-xs text-muted-foreground mt-1">{label}</p>
       {sub && <p className={`text-xs mt-1 ${color}`}>{sub}</p>}
     </motion.div>
@@ -72,17 +72,17 @@ export default function StudentDashboard() {
 
       {/* Metrics Grid */}
       <motion.div variants={container} className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <MetricCard icon={Zap} label="Eco Points" value={formatNumber(user?.points || 2450)} sub="+180 this week" color="text-eco-green" gradient="gradient-primary" />
-        <MetricCard icon={Flame} label="Weekly Streak" value={`🔥 ${user?.streak || 5} Days`} color="text-eco-orange" gradient="gradient-warm" />
-        <MetricCard icon={Trophy} label="Class Rank" value={`#${user?.classRank || 7}`} sub="↑ 1 position" color="text-eco-blue" gradient="gradient-accent" />
-        <MetricCard icon={School} label="School Rank" value={`#${user?.schoolRank || 24}`} sub="↑ 3 positions" color="text-eco-purple" gradient="bg-gradient-to-br from-purple-500 to-pink-600" />
+        <MetricCard emoji="⚡" label="Eco Points" value={formatNumber(user?.points || 2450)} sub="+180 this week" color="text-eco-green" gradient="bg-eco-green" />
+        <MetricCard emoji="🔥" label="Weekly Streak" value={`${user?.streak || 5} Days`} sub="Streak is active!" color="text-eco-orange" gradient="bg-eco-orange" />
+        <MetricCard emoji="🏆" label="Class Rank" value={`#${user?.classRank || 7}`} sub="↑ 1 position" color="text-eco-blue" gradient="bg-eco-blue" />
+        <MetricCard emoji="🏫" label="School Rank" value={`#${user?.schoolRank || 24}`} sub="↑ 3 positions" color="text-eco-purple" gradient="bg-purple-500" />
       </motion.div>
 
       {/* Streak Visual */}
       <motion.div variants={item} className="glass rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold flex items-center gap-2">
-            <Flame className="w-5 h-5 text-eco-orange" /> Weekly Streak
+            <span className="text-xl icon-3d icon-bounce">🔥</span> Weekly Streak
           </h3>
           <span className="text-sm text-eco-orange font-medium">{user?.streak || 5}/7 days</span>
         </div>

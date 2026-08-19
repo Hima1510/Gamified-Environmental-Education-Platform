@@ -97,23 +97,27 @@ export default function LearnPage() {
           ))}
         </motion.div>
       ) : (
-        /* Topic Detail */
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <button onClick={() => setSelectedTopic(null)} className="text-sm text-muted-foreground hover:text-foreground transition mb-4 flex items-center gap-1">← Back to topics</button>
-          <div className="glass rounded-xl p-6">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-4xl">{selectedTopic.icon}</span>
+          
+          <div className="unit-banner mb-6" style={{ backgroundColor: selectedTopic.color || '#a855f7', borderColor: selectedTopic.color || '#a855f7', filter: 'brightness(0.95)' }}>
+            <div className="flex items-center gap-4">
+              <span className="text-5xl icon-3d icon-bounce">{selectedTopic.icon}</span>
               <div>
-                <h2 className="text-xl font-bold">{selectedTopic.name}</h2>
-                <p className="text-sm text-muted-foreground">{selectedTopic.description}</p>
-                <div className="flex gap-3 mt-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-secondary" style={{ color: selectedTopic.color }}>{selectedTopic.difficulty}</span>
-                  <span className="text-xs text-muted-foreground">{selectedTopic.estimatedTime}</span>
-                  <span className="text-xs text-eco-green">+{selectedTopic.points} Points</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-white/80">Syllabus Topic Unit</span>
+                <h2 className="text-2xl font-bold text-white leading-tight">{selectedTopic.name}</h2>
+                <p className="text-sm text-white/90 mt-1">{selectedTopic.description}</p>
+                <div className="flex gap-3 mt-3">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white font-medium">{selectedTopic.difficulty}</span>
+                  <span className="text-xs text-white/80 font-medium">{selectedTopic.estimatedTime}</span>
+                  <span className="text-xs text-white font-bold">💎 +{selectedTopic.points} pts</span>
                 </div>
               </div>
             </div>
-            <div className="mb-4">
+          </div>
+
+          <div className="glass rounded-xl p-6">
+            <div className="mb-8">
               <div className="flex justify-between text-sm mb-2">
                 <span>Overall Progress</span>
                 <span className="font-medium">{selectedTopic.progress}%</span>
@@ -123,28 +127,63 @@ export default function LearnPage() {
                   className="h-full rounded-full" style={{ background: selectedTopic.color }} />
               </div>
             </div>
-            <h3 className="font-semibold mb-3">Lessons</h3>
-            <div className="space-y-2">
+
+            <h3 className="font-semibold text-center mb-10 text-lg uppercase tracking-wider text-slate-400">Learning Path</h3>
+            
+            <div className="relative flex flex-col items-center gap-16 py-12 max-w-md mx-auto">
+              {/* Vertical connector line */}
+              <div className="absolute top-4 bottom-12 w-2.5 bg-slate-700/80 rounded-full z-0" />
+
               {lessons.slice(0, selectedTopic.lessons).map((lesson, i) => {
                 const completed = i < selectedTopic.completedLessons;
+                const active = i === selectedTopic.completedLessons;
+                const locked = i > selectedTopic.completedLessons;
+                
+                // Duolingo snake offset
+                const offsets = ['ml-0', 'mr-24', 'ml-24', 'ml-0', 'mr-24', 'ml-24'];
+                const marginClass = offsets[i % offsets.length];
+
                 return (
-                  <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-                    className={`flex items-center gap-3 p-3 rounded-lg transition ${completed ? 'bg-primary/5' : 'bg-secondary/50 hover:bg-secondary/80'}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${completed ? 'gradient-primary text-white' : 'bg-secondary text-muted-foreground'}`}>
-                      {completed ? '✓' : i + 1}
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={`relative z-10 flex flex-col items-center ${marginClass}`}
+                  >
+                    {/* Speech Bubble Tooltip above current active node */}
+                    {active && (
+                      <div className="absolute -top-14 bg-eco-blue border-2 border-eco-blue/80 text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-xl shadow-lg animate-bounce whitespace-nowrap">
+                        START
+                        <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-eco-blue border-r-2 border-b-2 border-eco-blue/80 rotate-45" />
+                      </div>
+                    )}
+
+                    {/* Circle Node */}
+                    <div
+                      className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold border-4 shadow-md transition-all ${
+                        completed
+                          ? 'bg-eco-green border-emerald-600 text-white border-b-8 active:translate-y-1 active:border-b-4'
+                          : active
+                          ? 'bg-eco-blue border-sky-600 text-white border-b-8 ring-4 ring-sky-500/20 active:translate-y-1 active:border-b-4 animate-pulse'
+                          : 'bg-slate-800 border-slate-900 text-slate-500 cursor-not-allowed border-b-8'
+                      }`}
+                    >
+                      {completed ? '✓' : locked ? '🔒' : i + 1}
                     </div>
-                    <div className="flex-1">
-                      <p className={`text-sm font-medium ${completed ? 'text-primary' : ''}`}>Lesson {i + 1}: {lesson}</p>
-                      <p className="text-xs text-muted-foreground">{completed ? 'Completed' : i === selectedTopic.completedLessons ? 'Continue →' : 'Locked'}</p>
+
+                    {/* Lesson Label */}
+                    <div className="absolute -bottom-10 bg-slate-900/80 border border-slate-700/60 rounded-lg px-2 py-0.5 shadow-sm text-[10px] font-bold text-slate-300 whitespace-nowrap">
+                      {lesson}
                     </div>
-                    {completed && <span className="text-xs text-eco-green">+{Math.floor(selectedTopic.points / selectedTopic.lessons)} pts</span>}
                   </motion.div>
                 );
               })}
             </div>
+
             {selectedTopic.quizAvailable && (
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                className="mt-4 w-full py-3 rounded-xl gradient-primary text-white font-semibold flex items-center justify-center gap-2">
+                className="mt-12 w-full py-3 rounded-xl gradient-primary text-white font-semibold flex items-center justify-center gap-2">
                 Take {selectedTopic.name} Quiz <ChevronRight className="w-4 h-4" />
               </motion.button>
             )}
