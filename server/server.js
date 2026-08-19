@@ -143,6 +143,6 @@ try {
 // --- START ---
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🌿 EcoLearn API running on port ${PORT}`);
+  console.log(`🌿 GenGreen API running on port ${PORT}`);
   console.log(`   Routes: /api/auth, /api/users, /api/schools, /api/topics, /api/missions, /api/submissions, /api/leaderboards, /api/competitions, /api/badges, /api/analytics`);
 });

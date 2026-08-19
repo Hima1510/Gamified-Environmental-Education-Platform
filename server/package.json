@@ -1,7 +1,7 @@
 {
-  "name": "ecolearn-server",
+  "name": "gengreen-server",
   "version": "1.0.0",
-  "description": "EcoLearn Backend - Node.js + Express REST API",
+  "description": "GenGreen Backend - Node.js + Express REST API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -1,8 +1,8 @@
-# 🌿 EcoLearn — Gamified Environmental Education Platform
+# 🌿 GenGreen — Gamified Environmental Education Platform
 
 > **"Learn it. Play it. Do it. Prove it. Earn it."**
 
-A production-oriented prototype for Smart India Hackathon (SIH) 2026. EcoLearn transforms environmental education from passive textbook learning into an interactive, gamified experience for schools and colleges across India.
+A production-oriented prototype for Smart India Hackathon (SIH) 2026. GenGreen transforms environmental education from passive textbook learning into an interactive, gamified experience for schools and colleges across India.
 
 ## 🚀 Tech Stack
 

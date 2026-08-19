@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import random
 
-app = FastAPI(title="EcoLearn AI Service", version="1.0.0")
+app = FastAPI(title="GenGreen AI Service", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,7 +47,7 @@ class PersonalizeLearningResponse(BaseModel):
 
 @app.get("/")
 def root():
-    return {"service": "EcoLearn AI Service", "status": "running", "version": "1.0.0"}
+    return {"service": "GenGreen AI Service", "status": "running", "version": "1.0.0"}
 
 @app.post("/verify-image", response_model=VerifyImageResponse)
 def verify_image(req: VerifyImageRequest):

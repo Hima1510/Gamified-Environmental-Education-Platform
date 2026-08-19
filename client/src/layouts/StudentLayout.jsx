@@ -81,7 +81,7 @@ export default function StudentLayout() {
               <span className="text-xl icon-3d icon-bounce">🌱</span>
             </div>
             <div>
-              <h1 className="font-bold text-lg text-gradient">EcoLearn</h1>
+              <h1 className="font-bold text-lg text-gradient">GenGreen</h1>
               <p className="text-xs text-muted-foreground">Student Portal</p>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default function StudentLayout() {
         </button>
         <div className="flex items-center gap-2">
           <span className="text-xl icon-3d icon-bounce">🌱</span>
-          <span className="font-bold text-gradient">EcoLearn</span>
+          <span className="font-bold text-gradient">GenGreen</span>
         </div>
         <button onClick={() => setNotifOpen(!notifOpen)} className="p-2 hover:bg-secondary rounded-lg relative">
           <Bell className="w-5 h-5" />
@@ -158,7 +158,7 @@ export default function StudentLayout() {
               <div className="p-4 border-b border-border flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-xl icon-3d icon-bounce">🌱</span>
-                  <span className="font-bold text-gradient">EcoLearn</span>
+                  <span className="font-bold text-gradient">GenGreen</span>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="p-1 hover:bg-secondary rounded-lg">
                   <X className="w-5 h-5" />

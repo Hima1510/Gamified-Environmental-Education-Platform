@@ -101,7 +101,7 @@ export default function LoginPage() {
           >
             <Leaf className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-3xl font-bold text-gradient mb-2">EcoLearn</h1>
+          <h1 className="text-3xl font-bold text-gradient mb-2">GenGreen</h1>
           <p className="text-muted-foreground text-sm">Learn it. Play it. Do it. Prove it. Earn it.</p>
         </div>
 

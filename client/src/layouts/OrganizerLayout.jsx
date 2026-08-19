@@ -68,7 +68,7 @@ export default function OrganizerLayout() {
               <span className="text-xl icon-3d icon-bounce">🌱</span>
             </div>
             <div>
-              <h1 className="font-bold text-lg text-gradient">EcoLearn</h1>
+              <h1 className="font-bold text-lg text-gradient">GenGreen</h1>
               <p className="text-xs text-muted-foreground">Organizer Portal</p>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function OrganizerLayout() {
 
       <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-card/80 backdrop-blur-xl border-b border-border z-40 flex items-center px-4 justify-between">
         <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-secondary rounded-lg"><Menu className="w-5 h-5" /></button>
-        <div className="flex items-center gap-2"><span className="text-xl icon-3d icon-bounce">🌱</span><span className="font-bold text-gradient">EcoLearn</span></div>
+        <div className="flex items-center gap-2"><span className="text-xl icon-3d icon-bounce">🌱</span><span className="font-bold text-gradient">GenGreen</span></div>
         <div className="w-9" />
       </div>
       <AnimatePresence>
@@ -109,7 +109,7 @@ export default function OrganizerLayout() {
               <div className="p-4 border-b border-border flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-xl icon-3d icon-bounce">🌱</span>
-                  <span className="font-bold text-gradient">EcoLearn</span>
+                  <span className="font-bold text-gradient">GenGreen</span>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="p-1"><X className="w-5 h-5" /></button>
               </div>
