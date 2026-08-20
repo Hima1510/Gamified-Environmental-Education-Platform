@@ -238,7 +238,7 @@ export default function StudentLayout() {
             </button>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/50 rounded-lg">
               <span className="text-lg">{user?.avatar || '🌿'}</span>
-              <span className="text-sm font-medium">{user?.name?.split(' ')[0]}</span>
+              <span className="text-sm font-medium">{user?.name}</span>
             </div>
           </div>
         </div>
