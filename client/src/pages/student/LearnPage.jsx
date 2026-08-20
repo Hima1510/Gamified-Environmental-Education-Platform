@@ -9,7 +9,7 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 export default function LearnPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const [selectedTopic, setSelectedTopic] = useState(mockTopics[0]);
+  const [selectedTopic, setSelectedTopic] = useState(null);
 
   const filtered = mockTopics.filter(t => {
     const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
