@@ -113,6 +113,78 @@ app.get('/api/badges', (req, res) => {
   ]);
 });
 
+// --- AI CHATBOT ROUTE ---
+const ZERO_WASTE_TIPS_SERVER = [
+  { title: "Carry Reusables", desc: "Use a stainless steel water bottle and cloth shopping bag everywhere you go." },
+  { title: "Say No to Single-Use Plastics", desc: "Avoid plastic straws, disposable cutlery, and bottled drinks." },
+  { title: "Segregate Waste at Source", desc: "Keep paper & plastic recyclables separate from wet organic kitchen waste." },
+  { title: "Compost Organic Scraps", desc: "Turn fruit peels, vegetable ends, and tea leaves into nutrient-rich garden soil." },
+  { title: "Repurpose & Upcycle", desc: "Reuse glass jars for food storage and turn old t-shirts into cleaning rags." },
+  { title: "Go Digital & Decline Paper Receipts", desc: "Opt for digital receipts and use digital notebooks for school." },
+  { title: "Buy Package-Free Goods in Bulk", desc: "Shop at bulk stations using your own containers to minimize plastic packaging." },
+  { title: "Repair Items Before Replacing", desc: "Mend worn clothes, fix broken toys, and repair tools to extend their lifecycle." },
+  { title: "Choose Natural Materials", desc: "Prefer bamboo toothbrushes and wooden combs over plastic alternatives." },
+  { title: "Donate & Share Unused Items", desc: "Pass along old textbooks, toys, and clothes to schoolmates or local shelters." },
+];
+
+const WATER_TIPS_SERVER = [
+  { title: "Turn Off Running Taps", desc: "Close the faucet while brushing teeth to save over 6 liters per minute." },
+  { title: "Fix Leaks Immediately", desc: "A single dripping tap can waste over 15 liters of fresh water daily." },
+  { title: "Install Rainwater Harvesting", desc: "Set up collection barrels or pits at school and home to capture rain." },
+  { title: "Reuse RO Wastewater", desc: "Collect reject water from purifiers to mop floors or water garden plants." },
+  { title: "Take Shorter Showers", desc: "Keep showers under 5 minutes or use a bucket and mug to control water use." },
+];
+
+const ENERGY_TIPS_SERVER = [
+  { title: "Switch to LED Bulbs", desc: "LED lights consume up to 80% less electricity than incandescent bulbs." },
+  { title: "Unplug Phantom Electronics", desc: "Disconnect chargers and appliances when not in use to stop standby power draw." },
+  { title: "Maximize Natural Daylight", desc: "Open curtains during the daytime instead of switching on room lights." },
+  { title: "Set AC to 24°C-26°C", desc: "Optimal air conditioner temperatures reduce compressor energy load." },
+  { title: "Switch Off Unused Appliances", desc: "Turn off lights, fans, and computers whenever leaving a room." },
+];
+
+const getRequestedCount = (q, defaultVal = 3) => {
+  const digitMatch = q.match(/\b([1-9]|10)\b/);
+  if (digitMatch) return Math.min(parseInt(digitMatch[1], 10), 10);
+  const wordMap = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+  for (const [w, n] of Object.entries(wordMap)) {
+    if (new RegExp(`\\b${w}\\b`, 'i').test(q)) return n;
+  }
+  return defaultVal;
+};
+
+app.post('/api/ai/chat', (req, res) => {
+  const { message } = req.body;
+  const msg = (message || '').toLowerCase();
+  const count = getRequestedCount(msg, 3);
+  let reply = "";
+
+  if (msg.includes('waste') || msg.includes('plastic') || msg.includes('zero') || msg.includes('recycle') || msg.includes('tip')) {
+    const list = ZERO_WASTE_TIPS_SERVER.slice(0, count);
+    reply = `Here are **${count} practical zero-waste tips** for daily life:\n\n` +
+      list.map((t, idx) => `${idx + 1}. **${t.title}**: ${t.desc}`).join('\n') +
+      `\n\n♻️ *Every item saved from landfills protects our oceans!*`;
+  } else if (msg.includes('water') || msg.includes('rain') || msg.includes('conserve')) {
+    const list = WATER_TIPS_SERVER.slice(0, count);
+    reply = `Here are **${count} key water conservation tips**:\n\n` +
+      list.map((t, idx) => `${idx + 1}. **${t.title}**: ${t.desc}`).join('\n') +
+      `\n\n💧 *Protect every drop!*`;
+  } else if (msg.includes('energy') || msg.includes('electricity') || msg.includes('solar')) {
+    const list = ENERGY_TIPS_SERVER.slice(0, count);
+    reply = `Here are **${count} energy-saving tips** for your home and school:\n\n` +
+      list.map((t, idx) => `${idx + 1}. **${t.title}**: ${t.desc}`).join('\n') +
+      `\n\n⚡ *Save power, protect the planet!*`;
+  } else if (msg.includes('climate') || msg.includes('warming') || msg.includes('temperature')) {
+    reply = "Global warming occurs when greenhouse gases like CO2 trap heat in the atmosphere. To help:\n\n1. **Reduce Energy Use**: Switch off unused lights and devices.\n2. **Eco Transport**: Walk, cycle, or use public transit.\n3. **Plant Trees**: Trees absorb CO2 and release clean oxygen.\n\n🌍 Every action counts!";
+  } else if (msg.includes('tree') || msg.includes('plant') || msg.includes('biodiversity')) {
+    reply = "Trees are Earth's natural lungs!\n\n🌳 A single mature tree absorbs 22kg of CO2 every year and provides habitat for local wildlife. Plant a native sapling today!";
+  } else {
+    reply = "Every small eco-friendly habit counts! Practice the 3 R's (Reduce, Reuse, Recycle), save energy, and inspire your classmates on GenGreen!";
+  }
+
+  res.json({ reply, timestamp: new Date().toISOString() });
+});
+
 // --- ANALYTICS ---
 app.get('/api/analytics/platform', (req, res) => {
   res.json({ totalSchools: 128, totalStudents: 42850, totalTeachers: 2340, activeCompetitions: 16 });
