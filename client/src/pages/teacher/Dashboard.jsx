@@ -27,7 +27,7 @@ export default function TeacherDashboard() {
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 max-w-6xl mx-auto">
       <motion.div variants={item}>
-        <h1 className="text-2xl font-bold">Welcome, {user?.name?.split(' ')[0] || 'Teacher'}</h1>
+        <h1 className="text-2xl font-bold">Welcome, {user?.name || 'Teacher'}</h1>
         <p className="text-sm text-muted-foreground">{user?.className} • {user?.schoolName}</p>
       </motion.div>
 
