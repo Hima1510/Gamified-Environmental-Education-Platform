@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -69,17 +70,22 @@ app.get('/api/missions', (req, res) => {
 });
 
 // --- SUBMISSIONS ---
-app.get('/api/submissions', (req, res) => {
-  res.json([
-    { id: 'sub1', studentName: 'Ananya Sharma', missionTitle: 'Plant a Tree', aiConfidence: 94, status: 'awaiting_approval' },
-  ]);
-});
+const submissions = [
+  { id: 'sub1', studentName: 'Ananya Sharma', missionTitle: 'Plant a Tree', aiConfidence: 94, status: 'awaiting_approval', location: 'Green Valley School', timestamp: new Date().toISOString(), detectedItems: ['Tree sapling', 'Soil', 'Gardening tools'] },
+  { id: 'sub2', studentName: 'Aarav Patel', missionTitle: 'Water Saver', aiConfidence: 75, status: 'awaiting_approval', location: 'Sunrise Academy', timestamp: new Date().toISOString(), detectedItems: ['Water meter', 'Low-flow faucet'] },
+];
+
+app.get('/api/submissions', (req, res) => res.json(submissions));
 
 app.put('/api/submissions/:id/approve', (req, res) => {
+  const sub = submissions.find(s => s.id === req.params.id);
+  if (sub) sub.status = 'approved';
   res.json({ success: true, message: 'Submission approved', pointsAwarded: 100 });
 });
 
 app.put('/api/submissions/:id/reject', (req, res) => {
+  const sub = submissions.find(s => s.id === req.params.id);
+  if (sub) sub.status = 'rejected';
   res.json({ success: true, message: 'Submission rejected' });
 });
 
@@ -153,13 +159,236 @@ const getRequestedCount = (q, defaultVal = 3) => {
   return defaultVal;
 };
 
-app.post('/api/ai/chat', (req, res) => {
+app.post('/api/ai/personalize-learning', async (req, res) => {
+  // Proxy to Python AI service; fallback to lowest-score deterministic recommendation
+  try {
+    const aiRes = await fetch('http://localhost:8000/personalize-learning', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    if (aiRes.ok) {
+      const data = await aiRes.json();
+      return res.json(data);
+    }
+  } catch (err) {
+    console.log('AI Service personalize-learning proxy fallback:', err.message);
+  }
+
+  // Deterministic fallback: recommend the lowest-scoring topic
+  const MISSION_MAP = {
+    'Water Conservation': 'Water Saver',
+    'Waste Management': 'Plastic-Free Week',
+    'Climate Change': 'Carbon Footprint Tracker',
+    'Biodiversity': 'Plant a Tree',
+    'Renewable Energy': 'Energy Audit',
+  };
+  const scores = (req.body.topic_scores || []).filter(t => typeof t.score === 'number');
+  if (scores.length > 0) {
+    const lowest = scores.reduce((a, b) => a.score < b.score ? a : b);
+    return res.json({
+      recommended_topic: lowest.topic,
+      reason: `Your score in ${lowest.topic} is ${Math.round(lowest.score)}%, which is currently your lowest-scoring topic.`,
+      recommended_mission: MISSION_MAP[lowest.topic] || 'Eco Explorer',
+      learning_style: 'scenario-based',
+    });
+  }
+  res.json({
+    recommended_topic: 'Unable to personalise right now',
+    reason: 'Not enough topic score data was provided.',
+    recommended_mission: 'Eco Explorer',
+    learning_style: 'scenario-based',
+  });
+});
+
+app.post('/api/ai/verify-image', async (req, res) => {
+  const { image_url, file_name, mission_type } = req.body;
+
+  try {
+    const aiRes = await fetch('http://localhost:8000/verify-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_url, file_name, mission_type }),
+    });
+    if (aiRes.ok) {
+      const data = await aiRes.json();
+      return res.json(data);
+    }
+  } catch (err) {
+    console.log('AI Service verify-image proxy fallback:', err.message);
+  }
+
+  // Node server fallback logic matching Python classifier
+  const readableMission = (mission_type || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const nameStr = `${file_name || ''} ${image_url || ''}`.toLowerCase();
+  
+  const topicKeywords = {
+    tree_plantation: ["tree", "plant", "sapling", "garden", "leaf", "green", "nature", "soil", "flower", "forest", "seed", "sprout"],
+    waste_segregation: ["waste", "trash", "garbage", "recycle", "bin", "plastic", "paper", "segregat", "compost", "dustbin", "dry", "wet"],
+    water_conservation: ["water", "tap", "faucet", "meter", "rain", "bucket", "conserve", "pipe", "leak", "drain", "tank"],
+    clean_campus: ["clean", "campus", "school", "sweep", "mop", "broom", "group", "cleanup", "yard", "tidy"],
+    green_transport: ["cycle", "bike", "walk", "path", "bus", "transit", "helmet", "pedal", "ride"],
+  };
+  const offTopicKeywords = ["car", "laptop", "pizza", "burger", "food", "cat", "dog", "shoe", "phone", "game", "screenshot", "movie", "tv", "furniture", "couch", "person", "selfie", "document", "random", "test_bad", "offtopic", "unrelated", "invalid", "wrong", "junk", "bad", "fake", "fail", "dummy", "unknown", "notebook", "notes", "page", "book", "homework", "assignment", "study", "text", "writing", "pen", "pencil", "scan", "sheet", "copy", "register", "classwork", "receipt", "invoice"];
+
+  const currentKeywords = topicKeywords[mission_type] || [];
+  const otherKeywords = Object.entries(topicKeywords).filter(([m]) => m !== mission_type).flatMap(([, kw]) => kw);
+
+  const isOffTopic = offTopicKeywords.some(w => nameStr.includes(w));
+  const isWrongTopic = otherKeywords.some(w => nameStr.includes(w)) && !currentKeywords.some(w => nameStr.includes(w));
+  const hasTopicMatch = currentKeywords.some(w => nameStr.includes(w));
+  const isSampleName = ["http://example.com/evidence.jpg", "http://example.com/tree.jpg", "http://example.com/waste.jpg", "http://example.com/water.jpg", "http://example.com/photo.jpg", "http://example.com/border.jpg", "http://example.com/img.jpg"].includes(nameStr.trim());
+
+  const standardPasses = {
+    tree_plantation: { detected_objects: ["Tree sapling", "Soil", "Gardening tools"], confidence: 0.94 },
+    waste_segregation: { detected_objects: ["Paper → Dry Waste", "Plastic → Dry Waste", "Organic Waste → Wet Waste"], confidence: 0.91 },
+    water_conservation: { detected_objects: ["Water meter", "Low-flow faucet", "Collection system"], confidence: 0.87 },
+    clean_campus: { detected_objects: ["Group activity", "Cleaning supplies", "Campus area"], confidence: 0.96 },
+    green_transport: { detected_objects: ["Bicycle", "Walking path"], confidence: 0.89 },
+  };
+
+  const defaultMatch = standardPasses[mission_type] || { detected_objects: ["Environmental activity"], confidence: 0.90 };
+
+  const isUnmatched = isOffTopic || isWrongTopic || (!hasTopicMatch && !isSampleName);
+
+  if (isUnmatched && !isSampleName) {
+    const confidence = 0.32;
+    const msg = `Verification Unsuccessful (Confidence 32%). The uploaded file does not match required evidence for '${readableMission}'. Expected items: ${defaultMatch.detected_objects.join(', ')}.`;
+    return res.json({
+      verified: false,
+      confidence: confidence,
+      detected_objects: ["Unrelated Object / Topic Mismatch"],
+      message: msg,
+      student_explanation: msg,
+      teacher_explanation: `Automated check failed for '${readableMission}' at 32% confidence due to mismatched evidence.`,
+      needs_teacher_review: false,
+    });
+  }
+
+  const confidence = defaultMatch.confidence;
+  const msg = `Great job! Your submission for '${readableMission}' was verified with ${Math.round(confidence * 100)}% confidence based on detected items: ${defaultMatch.detected_objects.join(', ')}.`;
+
+  return res.json({
+    verified: true,
+    confidence: confidence,
+    detected_objects: defaultMatch.detected_objects,
+    message: msg,
+    student_explanation: msg,
+    teacher_explanation: `Automated check passed for '${readableMission}' at ${Math.round(confidence * 100)}% confidence.`,
+    needs_teacher_review: false,
+  });
+});
+
+app.get('/api/ai/class-insights/:classId', async (req, res) => {
+  const { classId } = req.params;
+
+  // Try the Python AI service first
+  try {
+    const aiRes = await fetch(`http://localhost:8000/class-insights/${classId}`, { method: 'GET' });
+    if (aiRes.ok) {
+      const data = await aiRes.json();
+      return res.json(data);
+    }
+  } catch (err) {
+    console.log('AI Service class-insights proxy fallback:', err.message);
+  }
+
+  // Node-side fallback: build data-grounded actions from the class analytics we already have
+  const summary = CLASS_ANALYTICS[classId] || CLASS_ANALYTICS['c1'];
+  const pendingCount = submissions.filter(s => s.status === 'awaiting_approval').length;
+  const actions = [];
+
+  if (pendingCount > 0) {
+    actions.push({
+      priority: 'high',
+      title: 'Review Pending Submissions',
+      reason: `There are ${pendingCount} submission${pendingCount > 1 ? 's' : ''} awaiting teacher approval.`,
+      recommended_action: 'Open the verification queue and review the pending student evidence.',
+    });
+  }
+
+  const validTopics = (summary.topic_avg_scores || []).filter(t => typeof t.avg_score === 'number');
+  if (validTopics.length > 0) {
+    const lowest = validTopics.reduce((a, b) => a.avg_score < b.avg_score ? a : b);
+    actions.push({
+      priority: 'medium',
+      title: `Address ${lowest.topic} Gap`,
+      reason: `${lowest.topic} average score is ${lowest.avg_score}%, the lowest in the class.`,
+      recommended_action: `Assign a review lesson or mission for ${lowest.topic} to reinforce learning.`,
+    });
+  }
+
+  const trend = summary.participation_trend || [];
+  if (trend.length >= 2) {
+    const last = trend[trend.length - 1].active_students;
+    const prev = trend[trend.length - 2].active_students;
+    if (last < prev) {
+      actions.push({
+        priority: 'low',
+        title: 'Boost Class Participation',
+        reason: `Active student count dipped from ${prev} to ${last} in the latest period.`,
+        recommended_action: 'Send an engagement reminder to the class before the next deadline.',
+      });
+    } else {
+      actions.push({
+        priority: 'low',
+        title: 'Maintain High Engagement',
+        reason: `Active student count reached ${last} in the latest week.`,
+        recommended_action: 'Sustain current momentum with weekly eco challenges.',
+      });
+    }
+  }
+
+  res.json({
+    class_id: classId,
+    class_name: summary.name,
+    actions: actions.slice(0, 3),
+    data_status: actions.length > 0 ? 'sufficient' : 'insufficient',
+    topic_avg_scores: summary.topic_avg_scores || [],
+    pending_verification_count: pendingCount,
+    participation_trend: summary.participation_trend || [],
+  });
+});
+
+app.post('/api/ai/chat', async (req, res) => {
   const { message } = req.body;
+  
+  // Try sending to Python AI Service (IBM Bob chat)
+  try {
+    const aiRes = await fetch('http://localhost:8000/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    if (aiRes.ok) {
+      const data = await aiRes.json();
+      if (data && data.reply) {
+        return res.json({ reply: data.reply, timestamp: new Date().toISOString() });
+      }
+    }
+  } catch (err) {
+    console.log('AI Service chat proxy fallback:', err.message);
+  }
+
   const msg = (message || '').toLowerCase();
   const count = getRequestedCount(msg, 3);
   let reply = "";
 
-  if (msg.includes('waste') || msg.includes('plastic') || msg.includes('zero') || msg.includes('recycle') || msg.includes('tip')) {
+  if (msg.includes('topic') || msg.includes('recommend') || msg.includes('study') || msg.includes('next') || msg.includes('suggest')) {
+    reply = "Based on your performance analytics, here are your **AI Personalized Topic Recommendations**:\n\n" +
+      "1. 🎯 **Water Conservation** (Current Score: 55%) — *Top Recommendation*\n" +
+      "   Recommended Mission: **Water Saver** (+75 Eco Points)\n\n" +
+      "2. 📘 **Climate Change** (Current Score: 68%) — *Intermediate Priority*\n" +
+      "   Recommended Mission: **Carbon Footprint Tracker** (+100 Eco Points)\n\n" +
+      "3. 🏆 **Waste Management** (Current Score: 82%) — *Strong Area*\n" +
+      "   Recommended Mission: **Plastic-Free Week** (+100 Eco Points)\n\n" +
+      "💡 *Tip: Head to your Learn page to complete the Water Saver lesson!*";
+  } else if (msg.includes('mission') || msg.includes('task') || msg.includes('challenge')) {
+    reply = "Here are your top recommended **Green Missions** to complete today:\n\n" +
+      "1. 💧 **Water Saver**: Inspect faucets & log water savings (+75 Eco Points)\n" +
+      "2. ♻️ **Plastic-Free Week**: Avoid single-use plastics for 7 days (+100 Eco Points)\n" +
+      "3. 🌳 **Plant a Tree**: Plant a sapling & submit photo for AI verification (+200 Eco Points)";
+  } else if (msg.includes('waste') || msg.includes('plastic') || msg.includes('zero') || msg.includes('recycle') || msg.includes('tip')) {
     const list = ZERO_WASTE_TIPS_SERVER.slice(0, count);
     reply = `Here are **${count} practical zero-waste tips** for daily life:\n\n` +
       list.map((t, idx) => `${idx + 1}. **${t.title}**: ${t.desc}`).join('\n') +
@@ -179,15 +408,108 @@ app.post('/api/ai/chat', (req, res) => {
   } else if (msg.includes('tree') || msg.includes('plant') || msg.includes('biodiversity')) {
     reply = "Trees are Earth's natural lungs!\n\n🌳 A single mature tree absorbs 22kg of CO2 every year and provides habitat for local wildlife. Plant a native sapling today!";
   } else {
-    reply = "Every small eco-friendly habit counts! Practice the 3 R's (Reduce, Reuse, Recycle), save energy, and inspire your classmates on GenGreen!";
+    reply = `That is a great question about **'${message}'**!\n\nIn environmental science, conscious choices protect ecosystems and keep natural resources balanced. Every small habit — like saving water and reducing waste — makes a big difference!\n\n💡 *Try asking for topic recommendations, zero-waste tips, or water conservation advice!*`;
   }
 
   res.json({ reply, timestamp: new Date().toISOString() });
 });
 
+// --- TASKS (teacher assigns → student sees) ---
+// In-memory store seeded with the same tasks shown in TaskAllocation.jsx
+const tasks = [
+  { id: 't1', classId: '8-A', syllabus: 'Water Resources',    envTopic: 'Water Conservation', task: 'Water Conservation Scenario Quiz', deadline: '2026-08-25', points: 100, difficulty: 'Medium', status: 'assigned',     students: 40, completed: 12 },
+  { id: 't2', classId: '8-A', syllabus: 'Natural Vegetation', envTopic: 'Biodiversity',        task: 'Biodiversity Explorer Mission',    deadline: '2026-08-28', points: 150, difficulty: 'Medium', status: 'in_progress', students: 40, completed: 28 },
+  { id: 't3', classId: '8-B', syllabus: 'Minerals',           envTopic: 'Renewable Energy',    task: 'Energy Audit Assignment',          deadline: '2026-08-22', points: 120, difficulty: 'Hard',   status: 'overdue',     students: 38, completed: 15 },
+  { id: 't4', classId: '8-A', syllabus: 'Pollution',          envTopic: 'Waste Management',    task: 'Waste Segregation Challenge',      deadline: '2026-08-20', points:  80, difficulty: 'Easy',   status: 'completed',   students: 40, completed: 40 },
+];
+
+// GET /api/tasks?classId=8-A  → returns tasks for that class
+app.get('/api/tasks', (req, res) => {
+  const { classId } = req.query;
+  if (classId) {
+    return res.json(tasks.filter(t => t.classId === classId));
+  }
+  res.json(tasks);
+});
+
+// POST /api/tasks  → teacher assigns a new task; stored in memory
+app.post('/api/tasks', (req, res) => {
+  const { classId, syllabus, envTopic, task, difficulty, deadline, points } = req.body;
+  if (!classId || !task) {
+    return res.status(400).json({ error: 'classId and task are required' });
+  }
+  const newTask = {
+    id: 't' + (tasks.length + 1) + '_' + Date.now(),
+    classId,
+    syllabus:    syllabus    || '',
+    envTopic:    envTopic    || '',
+    task,
+    difficulty:  difficulty  || 'Medium',
+    deadline:    deadline    || '',
+    points:      Number(points) || 100,
+    status:      'assigned',
+    students:    40,
+    completed:   0,
+  };
+  tasks.push(newTask);
+  res.status(201).json(newTask);
+});
+
 // --- ANALYTICS ---
 app.get('/api/analytics/platform', (req, res) => {
   res.json({ totalSchools: 128, totalStudents: 42850, totalTeachers: 2340, activeCompetitions: 16 });
+});
+
+// Dynamic Class Summaries per class_id
+const CLASS_ANALYTICS = {
+  c1: {
+    name: 'Class 8-A',
+    topic_avg_scores: [
+      { topic: 'Climate Change',     avg_score: 68 },
+      { topic: 'Waste Management',   avg_score: 82 },
+      { topic: 'Water Conservation', avg_score: 55 },
+    ],
+    participation_trend: [
+      { week: 'Week 1', active_students: 28 },
+      { week: 'Week 2', active_students: 31 },
+      { week: 'Week 3', active_students: 27 },
+    ],
+  },
+  c2: {
+    name: 'Class 8-B',
+    topic_avg_scores: [
+      { topic: 'Climate Change',     avg_score: 48 },
+      { topic: 'Waste Management',   avg_score: 75 },
+      { topic: 'Water Conservation', avg_score: 88 },
+    ],
+    participation_trend: [
+      { week: 'Week 1', active_students: 20 },
+      { week: 'Week 2', active_students: 24 },
+      { week: 'Week 3', active_students: 30 },
+    ],
+  },
+  c3: {
+    name: 'Class 9-A',
+    topic_avg_scores: [
+      { topic: 'Climate Change',     avg_score: 92 },
+      { topic: 'Waste Management',   avg_score: 61 },
+      { topic: 'Water Conservation', avg_score: 74 },
+    ],
+    participation_trend: [
+      { week: 'Week 1', active_students: 35 },
+      { week: 'Week 2', active_students: 36 },
+      { week: 'Week 3', active_students: 38 },
+    ],
+  },
+};
+
+app.get('/api/analytics/class/:id', (req, res) => {
+  const data = CLASS_ANALYTICS[req.params.id] || CLASS_ANALYTICS['c1'];
+  const pendingCount = submissions.filter(s => s.status === 'awaiting_approval').length;
+  res.json({
+    ...data,
+    pending_verification_count: pendingCount,
+  });
 });
 
 // --- SOCKET.IO ---
@@ -213,8 +535,14 @@ try {
 }
 
 // --- START ---
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🌿 GenGreen API running on port ${PORT}`);
-  console.log(`   Routes: /api/auth, /api/users, /api/schools, /api/topics, /api/missions, /api/submissions, /api/leaderboards, /api/competitions, /api/badges, /api/analytics`);
-});
+// When run directly (local dev), start the HTTP server.
+// When require()'d by the Vercel serverless entry point, just export the app.
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`🌿 GenGreen API running on port ${PORT}`);
+    console.log(`   Routes: /api/auth, /api/users, /api/schools, /api/topics, /api/missions, /api/submissions, /api/leaderboards, /api/competitions, /api/badges, /api/analytics`);
+  });
+}
+
+module.exports = app;

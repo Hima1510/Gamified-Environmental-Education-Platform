@@ -117,8 +117,47 @@ const extractCountFromQuery = (query, defaultVal = 3) => {
 };
 
 export default function AIMentorPage() {
-  const rec = mockAIRecommendation;
+  const [rec, setRec] = useState(mockAIRecommendation);
+  const [recLoading, setRecLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false); // Floating Chatbot closed by default
+
+  // Fetch personalised recommendation from the AI service on mount.
+  useEffect(() => {
+    const payload = {
+      student_id: 'demo_student',
+      topic_scores: mockAIRecommendation.weakTopics
+        .concat(mockAIRecommendation.goodTopics)
+        .concat(mockAIRecommendation.strongTopics)
+        .map(t => ({ topic: t.topic, score: t.score })),
+      completed_lessons: [mockAIRecommendation.recommendedLesson.title],
+      mission_activity: [mockAIRecommendation.recommendedMission.title],
+    };
+
+    aiAPI.personalizeLearning(payload)
+      .then(res => {
+        const data = res.data;
+        if (data && data.recommended_topic) {
+          // Map the flat AI response back into the rec shape the UI expects.
+          setRec(prev => ({
+            ...prev,
+            recommendedLesson: {
+              title: data.recommended_topic,
+              reason: data.reason,
+            },
+            recommendedMission: {
+              title: data.recommended_mission,
+              reason: data.reason,
+            },
+            recommendedTopic: data.recommended_topic,
+            learningStyle: data.learning_style,
+          }));
+        }
+      })
+      .catch(() => {
+        // AI service unavailable — keep the mock data already in state.
+      })
+      .finally(() => setRecLoading(false));
+  }, []);
 
   // Chat State
   const [messages, setMessages] = useState([
@@ -147,6 +186,24 @@ export default function AIMentorPage() {
   const getSmartEcoReply = (query) => {
     const q = query.toLowerCase();
     const count = extractCountFromQuery(q, 3);
+
+    if (q.includes('topic') || q.includes('recommend') || q.includes('study') || q.includes('next') || q.includes('suggest')) {
+      return "Based on your performance analytics, here are your **AI Personalized Topic Recommendations**:\n\n" +
+        "1. 🎯 **Water Conservation** (Current Score: 55%) — *Top Recommendation*\n" +
+        "   Recommended Mission: **Water Saver** (+75 Eco Points)\n\n" +
+        "2. 📘 **Climate Change** (Current Score: 68%) — *Intermediate Priority*\n" +
+        "   Recommended Mission: **Carbon Footprint Tracker** (+100 Eco Points)\n\n" +
+        "3. 🏆 **Waste Management** (Current Score: 82%) — *Strong Area*\n" +
+        "   Recommended Mission: **Plastic-Free Week** (+100 Eco Points)\n\n" +
+        "💡 *Tip: Start with the Water Saver lesson on your Learn page!*";
+    }
+
+    if (q.includes('mission') || q.includes('task') || q.includes('challenge')) {
+      return "Here are your top recommended **Green Missions** to complete today:\n\n" +
+        "1. 💧 **Water Saver**: Inspect faucets & log water savings (+75 Eco Points)\n" +
+        "2. ♻️ **Plastic-Free Week**: Avoid single-use plastics for 7 days (+100 Eco Points)\n" +
+        "3. 🌳 **Plant a Tree**: Plant a sapling & submit photo for AI verification (+200 Eco Points)";
+    }
 
     if (q.includes('waste') || q.includes('plastic') || q.includes('zero') || q.includes('recycle') || q.includes('tip')) {
       const selected = ZERO_WASTE_TIPS.slice(0, count);
@@ -181,7 +238,7 @@ export default function AIMentorPage() {
       return "Hey there, Eco Warrior! 🌟 How can I help you with your environmental learning or green missions today?";
     }
 
-    return "That's a fantastic environmental question! Environmental sustainability is all about making daily conscious choices to preserve natural resources for future generations.\n\nExplore our **Learn Page** modules or try a **Green Mission** to earn Eco Points!";
+    return "That's a fantastic environmental question! Environmental sustainability is all about making daily conscious choices to preserve natural resources for future generations.\n\nTry asking for **topic recommendations**, **zero-waste tips**, or **water conservation advice**!";
   };
 
   const handleSend = async (textToSend) => {
